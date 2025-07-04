@@ -1,0 +1,117 @@
+﻿Build1=Default,com.genesis.sofarenderer
+File1=debug_fragment.frag
+File10=sofa020_diffuse.png
+File11=sofa020_normal.png
+File12=sofa020_occlusion.png
+File13=sofa020_specularglossiness.png
+File2=debug_vertex.vert
+File3=gltf_fragment.frag
+File4=gltf_fragment2.frag
+File5=gltf_vertex.vert
+File6=gltf_vertex2.vert
+File7=MainPage.bal
+File8=scene.bin
+File9=scene.gltf
+FileGroup1=Default Group
+FileGroup10=Default Group
+FileGroup11=Default Group
+FileGroup12=Default Group
+FileGroup13=Default Group
+FileGroup2=Default Group
+FileGroup3=Default Group
+FileGroup4=Default Group
+FileGroup5=Default Group
+FileGroup6=Default Group
+FileGroup7=Default Group
+FileGroup8=Default Group
+FileGroup9=Default Group
+Group=Default Group
+Library1=b4aeasyar
+Library2=b4xpages
+Library3=core
+Library4=json
+Library5=opengl2
+Library6=runtimepermissions
+Library7=gesturedetector
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: https://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="33"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:hardwareAccelerated, "true")~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~''CreateResourceFromFile(Macro, Themes.DarkTheme)~\n~~\n~AddApplicationText(<meta-data android:name="com.google.ar.core" android:value="required"/>~\n~        <meta-data android:name="com.google.ar.core.min_apk_version" android:value="181012000"/>)~\n~~\n~AddApplicationText(<activity~\n~            android:name="com.google.ar.core.InstallActivity"~\n~            android:configChanges="keyboardHidden|orientation|screenSize"~\n~            android:excludeFromRecents="true"~\n~            android:exported="false"~\n~            android:launchMode="singleTop"~\n~            android:theme="@android:style/Theme.Material.Light.Dialog.Alert" />~\n~			<meta-data~\n~            android:name="com.google.ar.core.min_apk_version"~\n~            android:value="181012000" />)~\n~~\n~SetApplicationAttribute(android:theme, "@style/LightTheme")~\n~CreateResource(values, colors.xml,~\n~<resources>~\n~    <color name="actionbar">#ff039be5</color>~\n~   <color name="statusbar">#ff006db3</color>~\n~   <color name="textColorPrimary">#ffffffff</color>~\n~   <color name="navigationBar">#ff006db3</color>~\n~</resources>~\n~)~\n~CreateResource(values-v20, theme.xml,~\n~<resources>~\n~    <style name="LightTheme" parent="@android:style/Theme.Material.Light">~\n~        <item name="android:colorPrimary">@color/actionbar</item>~\n~        <item name="android:colorPrimaryDark">@color/statusbar</item>~\n~        <item name="android:textColorPrimary">@color/textColorPrimary</item>~\n~        <item name="android:navigationBarColor">@color/navigationBar</item>~\n~        <item name="android:colorAccent">@color/navigationBar</item>~\n~        <item name="android:alertDialogTheme">@style/AlertDialogCustom</item>~\n~    </style>~\n~~\n~    <style name="AlertDialogCustom" parent="@android:style/Theme.Material.Light.Dialog.Alert">~\n~      <item name="android:colorPrimary">@color/actionbar</item>~\n~      <item name="android:colorAccent">@color/navigationBar</item>~\n~    </style>~\n~</resources>)~\n~''CreateResource(values, colors.xml,~\n~''<resources>~\n~''    <color name="actionbar">#ff039be5</color>~\n~''   <color name="statusbar">#ff006db3</color>~\n~''   <color name="textColorPrimary">#ffffffff</color>~\n~''   <color name="navigationBar">#ff006db3</color>~\n~''</resources>~\n~'')~\n~''CreateResource(values-v20, theme.xml,~\n~''<resources>~\n~''    <style name="LightTheme" parent="@android:style/Theme.Material.Light">~\n~''        <item name="android:colorPrimary">@color/actionbar</item>~\n~''        <item name="android:colorPrimaryDark">@color/statusbar</item>~\n~''        <item name="android:textColorPrimary">@color/textColorPrimary</item>~\n~''        <item name="android:navigationBarColor">@color/navigationBar</item>~\n~''    </style>~\n~''</resources>~\n~'')~\n~''CreateResource(values-v14, theme.xml,~\n~''<resources>~\n~''    <style name="LightTheme" parent="@android:style/Theme.Holo.Light">~\n~''       <item name="android:actionBarStyle">@style/CustomActionBarStyle</item>~\n~''    </style>~\n~''   <style name="CustomActionBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">~\n~''       <item name="android:background">@color/actionbar</item>~\n~''   </style>~\n~''</resources>~\n~'')~\n~~\n~AddManifestText(~\n~<uses-permission~\n~  android:name="android.permission.WRITE_EXTERNAL_STORAGE"~\n~  android:maxSdkVersion="18" />~\n~)~\n~~\n~AddManifestText(<queries>~\n~        <intent>~\n~            <action android:name="android.intent.action.VIEW" />~\n~            <category android:name="android.intent.category.BROWSABLE" />~\n~            <data android:scheme="https" />~\n~        </intent>~\n~        <package android:name="com.google.ar.core" /> <!-- only needed when using ARCore < v1.19.0 -->~\n~		<package android:name="com.sec.android.app.samsungapps" />~\n~		</queries>)~\n~   '' <uses-permission android:name="android.permission.CAMERA" />~\n~    ''<uses-permission android:name="android.permission.INTERNET" />~\n~	AddPermission(android.permission.CAMERA)~\n~	AddPermission(android.permission.INTERNET)
+Module1=|relative|..\B4XMainPage
+Module2=Common
+Module3=GLTFMeshLoader
+Module4=GLTFModelRenderer
+Module5=SofaTracker
+Module6=Starter
+NumberOfFiles=13
+NumberOfLibraries=7
+NumberOfModules=6
+Version=13
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: Sofa Renderer
+	#VersionCode: 1
+	#VersionName: 1.0.0
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: portrait
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: False
+	#IncludeTitle: False
+#End Region
+
+#AdditionalJar: google_ar.1.6.0.aar
+#BridgeLogger: True
+
+Sub Process_Globals
+	Public ActionBarHomeClicked As Boolean
+	
+End Sub
+
+Sub Globals
+	
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	Dim pm As B4XPagesManager
+	pm.Initialize(Activity)
+End Sub
+
+'Template version: B4A-1.01
+#Region Delegates
+
+Sub Activity_ActionBarHomeClick
+	ActionBarHomeClicked = True
+	B4XPages.Delegate.Activity_ActionBarHomeClick
+	ActionBarHomeClicked = False
+End Sub
+
+Sub Activity_KeyPress (KeyCode As Int) As Boolean
+	Return B4XPages.Delegate.Activity_KeyPress(KeyCode)
+End Sub
+
+Sub Activity_Resume
+	B4XPages.Delegate.Activity_Resume
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+	B4XPages.Delegate.Activity_Pause
+End Sub
+
+Sub Activity_PermissionResult (Permission As String, Result As Boolean)
+	B4XPages.Delegate.Activity_PermissionResult(Permission, Result)
+End Sub
+
+Sub Create_Menu (Menu As Object)
+	B4XPages.Delegate.Create_Menu(Menu)
+End Sub
+
+#if Java
+public boolean _onCreateOptionsMenu(android.view.Menu menu) {
+	 processBA.raiseEvent(null, "create_menu", menu);
+	 return true;
+	
+}
+#End If
+#End Region
+
+'Program code should go into B4XMainPage and other pages.
