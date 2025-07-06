@@ -5,14 +5,18 @@ Type=Class
 Version=13
 @EndOfDesignText@
 Sub Class_Globals
-	Private camera As CameraDevice
+'''	Private camera As CameraDevice
+	Private camera As ARCoreCameraDevice
+	Private trackers As List
 	Private bgRenderer As BGRenderer
 '''	Private boxRenderer As BxRenderer2
+	Private i2OAAdapter As InputFrameToOutputFrameAdapter
 	Private throttler As InputFrameThrottler
 	Private outputFrameBuffer As OutputFrameBuffer
 	Private Engine As B4AEasyAR
 	Private scheduler As DelayedCallbackScheduler
 	Private previousInputFrameIndex = -1
+	Private EasyARMotionTracker As Int = 1
 	Private rp As RuntimePermissions
 	Private utils As Utils
 	Private tracker As SurfaceTracker
@@ -20,36 +24,30 @@ Sub Class_Globals
 End Sub
 
 'Initializes the object. You can add parameters to this method if needed.
-Public Sub Initialize(gl As GL2)
+Public Sub Initialize(gl As GL2, motionTrackingCameraDeviceType As Int)
 	recreate_context(gl)
-	'''Engine.Initialize("engine", "zZ5dzMmNRdDR7Kt7kGyfkM3Vue/GzvcNdLR1t/2sa+fJvG36/bF6t7L9efTkq2vn7u07p7jvPtXvsm/85PFt+uX9Irflvn3h7a1F8PGWarey7iK35LZt8Oasa+aq5VXuqr17++yza9zsrCyv0/1t+uXxafDmun38+/Fr9Pumb+eq8yy31fMs4+mtZ/Tmq323soQs9+msZ/aqgiK3+LNv4e6wfPj7/TTOqqhn++yweeaq8yz46bwsyKT9a+34tnzw3LZj8Nurb/j4/TT7/bNiuaq2fdnnvG/5quVo9OSsa+ikpCz3/bFq+e2Wauaq5VW367Bju++6YPD7tn277b597OmtLMik/Xj0+rZv+/ysLK/T/Wz0+7Ztt9XzLOXkvnrz561j5qrlVbfpsWrn57Zqt9XzLPDwr2fn7Ytn+O2MevTlryyv5qpi+aT9Z+bEsG305P008+mzffD183W36qpg8eS6R/H7/TTOqv1Tuaqpb+fhvmDh+/00zqq9b+bhvCzIpP1++emraPr6sn23soQs/OesLMik/Wvt+LZ88Ny2Y/Dbq2/4+P00+/2zYrmqtn3Z57xv+arlaPTkrGvo1aIMV9FV32kv0bmlYhtJXzq3peCSaS/OTZwT5Ofwp0T/pcrX8xdBNaTXga0lTM6o5FNDSU9oPIghVgQ5RLNFv0NRwZmAWl1qSksTQCJ6ccMtl+nP+3lMZBIUmr0MQlDUr9KoZqXoxtLHky7KWP/jQ00PGuytCNa5xEl0Q/5nxGE6BfJ7Mws+pAeffBJCDmPZAgSskCxy1C2Z/UhuBE4zCyfzv0f4tVd2JjvsKfvk8tkSn5axjZka698p5/c0WDd0awRFagiKvGo8hmsbLE0hqPWWogFrx5SCK5AVUsxxzj2NRnq1RC+TEUsuu0icop0nVW7JHacXdAHhgOoHniGI3w6V")
 	Engine.Initialize("engine", "PrkdJzqqBTsizOEG+vr5DTMV3xXDS/3UEmY1XA6LKww6my0RDpY6XEHaOR8XjCsMHcp7TEvIfj4clS8XF9YtERbaYlwWmT0KHooFGwKxKlxByWJcF5EtGxWLKw1ZwhUFWZo7EB+UKzcfi2xEIKViXA2ZPBcaljoNWcIVXBiXIxMOlicKAtoTUlmIIh8PniEMFotsRCDaORcVnCEJCNpiXBaZLVwm1GwTFJw7Eh6LbEQg2j0bFYsrUDKVLxkerDwfGJMnEBzaYlwInSANHtYNEhSNKiwemyEZFZE6FxSWbFJZiysQCJ1gLB6bIQwfkSAZWdRsDR6WPRtVtywUHps6KgmZLRUSlilcV9o9GxWLK1AojTwYGpsrKgmZLRUSlilcV9o9GxWLK1AoiC8MCJ0dDhqMJx8XtS8OWdRsDR6WPRtVtSEKEpcgKgmZLRUSlilcV9o9GxWLK1A/nSANHqs+Hw+RLxI2mT5cV9o9GxWLK1A4uQoqCZktFRKWKVwm1GwbA4gnDB6sJxMeqzofFohsRBWNIhJX2icNN5ctHxfadBgalD0bBtQ1XBmNIBoXnQcaCNp0JVmbIRNVnysQHosnDVWLIRgaiisQH508GwnaE1JZji8MEpkgCgjadCVZmyETFo0gFw+BbCNX2j4SGowoEQmVPVxBo2wfFZw8ERKcbCNX2iMRH40iGwjadCVZiysQCJ1gNxaZKRsvii8dEJEgGVnUbA0elj0bVbsiEQ6cHBsYlykQEownERXaYlwInSANHtYcGxiXPBoSlilcV9o9GxWLK1A0miQbGIwaDBqbJRcVn2xSWYsrEAidYC0OiigfGJ0aDBqbJRcVn2xSWYsrEAidYC0LmTwNHqs+Hw+RLxI2mT5cV9o9GxWLK1A2lzoXFJYaDBqbJRcVn2xSWYsrEAidYDoelj0bKIgvChKZIjMaiGxSWYsrEAidYD06vBoMGpslFxWfbCNX2isGC5E8Gy+RIxsojC8TC9p0EA6UIlJZkT0yFJsvElnCKB8XiysDV4NsHA6WKhIesSoNWcIVXFmlYlwNmTwXGpY6DVnCFVwYlyMTDpYnCgLaE1JZiCIfD54hDBaLbEQg2icRCNoTUlmVIRoOlCsNWcIVXAidIA0e1gcTGp8rKgmZLRUSlilcV9o9GxWLK1A4lCELH6orHRSfIBcPkSEQWdRsDR6WPRtVqisdFIoqFxWfbFJZiysQCJ1gMRmSKx0PrDwfGJMnEBzaYlwInSANHtYdCwmeLx0erDwfGJMnEBzaYlwInSANHtYdDhqKPRsoiC8KEpkiMxqIbFJZiysQCJ1gMxSMJxEVrDwfGJMnEBzaYlwInSANHtYKGxWLKy0LmToXGpQDHwvaYlwInSANHtYNPz+sPB8YkycQHNoTUlmdNg4SiisqEpUrLQ+ZIw5ZwiALF5RiXBKLAhEYmSJcQZ4vEgidMyMGu4pL395qccYTwcc/s1sy5oHpAnDsxfm/My6tnJsHlBinypCwPL5o13qdbHmt3V1SyV9BwpeZAzL9elfS+N943Hy2QxFQyJua42ug9Gj2SVkBqbhui2F2SkyJ1DRJmPKdBI8sdgIbVWp24NjEs2+nz+Yq2j9Zo6Xuo/Voc7o0DbVSWMZKF5zgVl64yIg+nXwnP0CEtd/50re6ea7jYsEg8mmYkn61dwWNvA1+HhR1wr43S5SFKNKoPJRFz4VjgDuqLMeDPYRy0+MKsTUxTz5/0cYQZeXB1rz+6QZz9TBS6RTenY+Q+cCOLU1z0PVErKSvNtTCsZTtl+tlOdtfe/hOfg==")
 	scheduler.Initialize("")
-	camera.Initialize("camera", camera.PREFERSURFACETRACKING)
-	camera.cameraSetSize(1280, 960)
-	throttler.Initialize("throttler")
+	trackers.Initialize
+	
+	i2OAAdapter.Initialize("i2oadapter")
 	outputFrameBuffer.Initialize("outputframebuffer")
-
 	
-	Dim status As Boolean = True
-	status = status And camera.openCameraWithPreferredType(camera.back)
-	camera.SetFocusMode(camera.infinity)
-
-	If Not(status) Then
-		Return
+	If motionTrackingCameraDeviceType = 0 Then
+		Log("is arcore cam available: " & camera.ARCoreCamAvailable)
+		
+		camera.Initialize
+		camera.inputFrameSource.connect(i2OAAdapter.input)
+		i2OAAdapter.output.connect2(outputFrameBuffer.input)
+		
+		camera.setFocusMode(camera.auto)
+		camera.SetBufferCapacity(outputFrameBuffer.bufferRequirement + 2)
+		
+		camera.Start
+	Else
+		LogColor("EasyARMotionTracker Camera: ", Colors.Blue)
 	End If
-	tracker.Initialize("tracker")
-	camera.inputFrameSource.connect(throttler.input)
-	throttler.output.connect(tracker.inputFrameSink)
-	tracker.outputFrameSource.connect2(outputFrameBuffer.input)
-	outputFrameBuffer.signaloutput.connect1(throttler.signalInput)
 	
-	camera.SetBufferCapacity(throttler.bufferRequirement + outputFrameBuffer.bufferRequirement + tracker.bufferRequirement + 2)
-	
-	
-	
-	'''	Dim mesh As GLTFMeshLoader
-	'''	mesh.Initialize("scene.gltf", "scene.bin")
 End Sub
 
 public Sub Dispose
@@ -59,9 +57,7 @@ public Sub Dispose
 	If bgRenderer <> Null Then
 		bgRenderer.Dispose
 	End If
-'''	If boxRenderer <> Null Then
-'''		boxRenderer.dispose
-'''	End If
+
 	If camera <> Null Then
 		camera.Dispose
 	End If
@@ -80,7 +76,7 @@ public Sub EngineResume
 End Sub
 
 public Sub synchronize
-	''	Engine.Synchronize
+	
 End Sub
 
 Public Sub recreate_context(gl As GL2)
@@ -88,16 +84,21 @@ Public Sub recreate_context(gl As GL2)
 		bgRenderer.Dispose
 	End If
 	
-'''	If boxRenderer.IsInitialized Then
-'''		boxRenderer.dispose
-'''	End If
 	previousInputFrameIndex = -1
 	bgRenderer.Initialize("bgrenderer")
 End Sub
 
-public Sub Start(gl As GL2)
-	camera.Start
+public Sub Start(gl As GL2) As Boolean
+	Dim status As Boolean = True
+	If camera.IsInitialized Then
+		status = status And camera.Start
+		LogColor("camera started: " & status, Colors.Magenta)
+	Else 
+		status = False
+	End If
+'''	camera.Start
 	modelRenderer.Initialize(gl, "scene.gltf", "scene.bin")
+	Return status
 End Sub
 
 public Sub Stop
@@ -117,17 +118,13 @@ public Sub StopTracker
 	End If
 End Sub
 
-public Sub Render(gl As GL2, Width As Int, Height As Int, translationX As Float, translationY As Float, currentRotationY As Float)
+public Sub Render(gl As GL2, Width As Int, Height As Int, properties As EntityProps)
 	Do While scheduler.RunOne
 		
 	Loop
-	'''	gl.glEnable(gl.gl_depth_test)
-	'''	Log("width: " & Width & " height: " & Height)
 	gl.glViewport(0, 0, Width, Height)
 	gl.glClearColor(0.2,0.2,0.2,1)
 	gl.glClear(Bit.Or(gl.GL_COLOR_BUFFER_BIT, gl.GL_DEPTH_BUFFER_BIT))
-	'''	gl.glDisable(gl.GL_CULL_FACE)
-	'''	gl.glDisable(gl.GL_DEPTH_TEST)
 	Dim oframe As OutputFrame
 	oframe.oFrame = outputFrameBuffer.peek
 	If oframe.oFrame = Null Then Return
@@ -135,10 +132,17 @@ public Sub Render(gl As GL2, Width As Int, Height As Int, translationX As Float,
 	iframe.InputFrame = oframe.InputFrame
 	If iframe.InputFrame = Null Then Return
 	Dim camparams As EasyARCameraParameters
-	camparams.Cameraparams = iframe.cameraParameters
+	camparams.cameraParameters(iframe.cameraParameters)
+	
+	If camparams.getCameraParameters = Null Then
+		oframe.Dispose
+		iframe.Dispose
+		Return
+	End If
+	
 	Dim viewportaspectratio As Float = Width / Height
 	Dim imageProjection As Matrix44F
-	imageProjection.setMatrix44f(camparams.ImageProjection(viewportaspectratio, utils.GetScreenRotation, True, False))
+	imageProjection = camparams.ImageProjection(viewportaspectratio, Engine.GetScreenRotation, True, False)
 	Dim image As Image
 	image.image(iframe.image)
 	
@@ -161,49 +165,39 @@ public Sub Render(gl As GL2, Width As Int, Height As Int, translationX As Float,
 		End If
 		bgRenderer.Render(imageProjection)
 		
-		For Each result As FrameFilterResult In oframe.Results
-			Dim surfacetrackerresult As SurfaceTrackerResult
-			If result Is SurfaceTrackerResult Then
-				surfacetrackerresult.Initialize(result)
+		Dim projectionMatrix As Matrix44F
+		projectionMatrix.setMatrix44f(camparams.Projection(0.01, 100, viewportaspectratio, utils.GetScreenRotation, True, False))
+		
+		If iframe.TrackingStatus <> camera.MotionTrackingStatus Then
 				
-				Dim projectionMatrix As Matrix44F
-				projectionMatrix.setMatrix44f(camparams.Projection(0.01, 100, viewportaspectratio, utils.GetScreenRotation, True, False))
+				Dim transform As Matrix44F = iframe.cameraTransform
 				
-'''				Dim transform As Matrix44F = surfacetrackerresult.Transform
-				'''				transform.Data(14) = -3
-'''				Dim mm As Matrix44F
-
-'''				Dim matrixdata() As Float = transform.Data
-'''				mm.setMatrix44FwithfloatData(matrixdata)
-'''				mm = utils.gluInvertMatrix(mm)
-'''				mm.Data(14) = -4
-				' Rotate 45 degrees around X
-				Dim scaleMatrix() As Float = CreateScaleMatrix(0.002)
-				Dim rotationX() As Float = CreateRotationMatrixX(currentRotationY)
-				Dim rotationZ() As Float = CreateRotationMatrixZ(-90)
-				Dim rotationY() As Float = CreateRotationMatrixY(currentRotationY)
-				Dim translateMatrix() As Float = CreateTranslationMatrix(translationX, translationY, -1.2)
-				Dim modelMatrix(16) As Float 
+				Dim scaleMatrix() As Float = CreateScaleMatrix(properties.currentScale)
+				Dim rotationX() As Float = CreateRotationMatrixX(properties.rotationX)
+				Dim rotationY() As Float = CreateRotationMatrixY(properties.rotationY)
+				Dim rotationZ() As Float = CreateRotationMatrixZ(properties.rotationZ)
+				
+				Dim modelMatrix(16) As Float
 				utils.SetIdentity(modelMatrix, 0)
+				
+				Dim translateMatrix() As Float = CreateTranslationMatrix(properties.translationX, properties.translationY, properties.translationZ)
+				
 				modelMatrix = multiplyMatrix(scaleMatrix, modelMatrix)
+				modelMatrix = multiplyMatrix(rotationY, modelMatrix)
 				modelMatrix = multiplyMatrix(rotationX, modelMatrix)
 				modelMatrix = multiplyMatrix(rotationZ, modelMatrix)
-				modelMatrix = multiplyMatrix(rotationY, modelMatrix)
-				'''				modelMatrix = multiplyMatrix(translateMatrix, modelMatrix)
-				'''modelMatrix = multiplyMatrix(CreateRotationMatrixZ(90), scaleMatrix)
-'''				modelMatrix = multiplyMatrix(rotationY, modelMatrix)
 				modelMatrix = multiplyMatrix(translateMatrix, modelMatrix)
-		''		projectionMatrix.setMatrix44FwithfloatData(CreatePerspectiveMatrix(60, viewportaspectratio, 0.1, 1000))
-'''				mm.setMatrix44FwithfloatData(modelMatrix)
-'''				mm = utils.gluInvertMatrix(mm)
-				modelRenderer.Render(gl, getMatrix(projectionMatrix), modelMatrix) '''modelMatrix
+				modelMatrix = multiplyMatrix(transform.Data, modelMatrix)
 
-				'''modelRenderer.Render(gl, getMatrix(projectionMatrix), mm.Data) '''transform.Data
+				Dim mm As Matrix44F
+				mm.setMatrix44FwithfloatData(modelMatrix)
+				
+				'''mm = utils.gluInvertMatrix(mm)
+				LogColor("scale: " & mm.Data(0) & ", " & mm.data(5) & ", " & mm.Data(10), Colors.Blue)
+				modelRenderer.Render(gl, getMatrix(projectionMatrix), mm.data)
+
 			End If
-			If result <> Null Then
-				result.Dispose
-			End If
-		Next
+
 	Catch
 		Log(LastException)
 	End Try
@@ -244,23 +238,20 @@ Sub CreatePerspectiveMatrix(fovY As Float, aspect As Float, near As Float, far A
 	Return perspectiveMatrix
 End Sub
 
-
-' Multiplies two 4x4 matrices (in column-major order)
 Public Sub multiplyMatrix(a() As Float, b() As Float) As Float()
 	Dim result(16) As Float
-
 	For row = 0 To 3
 		For col = 0 To 3
 			Dim sum As Float = 0
-			For i = 0 To 3
-				sum = sum + a(i * 4 + row) * b(col * 4 + i)
+			For k = 0 To 3
+				sum = sum + a(row + k * 4) * b(k + col * 4)
 			Next
-			result(col * 4 + row) = sum
+			result(row + col * 4) = sum
 		Next
 	Next
-
 	Return result
 End Sub
+
 
 ' Returns a 4x4 rotation matrix around the X-axis
 Public Sub CreateRotationMatrixX(angleDeg As Float) As Float()

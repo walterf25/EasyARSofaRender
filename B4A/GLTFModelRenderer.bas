@@ -68,7 +68,6 @@ Public Sub Initialize(gl As GL2, gltfFile As String, binFile As String)
 	gl.glDeleteShader(frag)
 
 	attrPosition = gl.glGetAttribLocation(shaderProgram, "aPosition")
-'''	attrColor = gl.glGetAttribLocation(shaderProgram, "aColor")
 	uSampler = gl.glGetUniformLocation(shaderProgram, "uTexture")
 	attrTexCoord = gl.glGetAttribLocation(shaderProgram, "aTexCoord")
 	uProjectionMatrix = gl.glGetUniformLocation(shaderProgram, "uProjectionMatrix")
@@ -76,8 +75,6 @@ Public Sub Initialize(gl As GL2, gltfFile As String, binFile As String)
 	
 	Log("attrPosition: " & attrPosition)
 
-	' Generate buffers
-	'''vbo = Array As Int()
 	gl.glGenBuffers(2, vbo, 0)
 	
 	gl.glBindTexture(gl.GL_TEXTURE_2D, textureID)
@@ -119,40 +116,12 @@ End Sub
 
 Public Sub Render(gl As GL2, projectionMatrix() As Float, modelMatrix() As Float)
 	
-'''	gl.glClear(bit.Or(gl.GL_COLOR_BUFFER_BIT,gl.GL_DEPTH_BUFFER_BIT))
-
-	Dim angle As Float = DateTime.Now Mod 5000 / 5000 * 360
-	Dim rotatedModelMatrix() As Float = CreateRotationYMatrix(angle)
-	
-'''	For i = 0 To 14
-'''		Log("prjectionMatrix: " & i & " -- " & projectionMatrix(i))
-'''	Next
-'''	
-'''	LogColor("inside Render function...", Colors.Red)
-'''	For j = 0 To 14
-'''		Log("modelMatrix: " & j & " -- " & modelMatrix(j))
-	'''	Next
-'''	Log("Model center moved to: " & modelMatrix(12) & "," & modelMatrix(13) & "," & modelMatrix(14))
 	gl.glDisable(gl.GL_CULL_FACE)
-'''	gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR_MIPMAP_LINEAR)
-'''	gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
-
 	gl.glUseProgram(shaderProgram)
 
 	gl.glUniformMatrix4fv(uProjectionMatrix, 1, False, projectionMatrix, 0)
-'''	gl.glUniformMatrix4fv(uModelMatrix, 1, False, modelMatrix, 0)
-'''	Dim modelMatrix() As Float = CreateScaleMatrix(1.0)
-'''	Dim scaledModelMatrix() As Float = CreateScaleMatrix(0.01)
+
 	gl.glUniformMatrix4fv(uModelMatrix, 1, False, modelMatrix, 0) '''rotatedModelMatrix
-	
-'''	For i = 0 To modelData.vertexBuffer.Capacity - 1
-'''		LogColor("vertexBuffer: " & modelData.vertexBuffer.Get2, Colors.Magenta)
-'''	Next
-'''	modelData.vertexBuffer.position(0)
-	
-'''	For i = 0 To projectionMatrix.Length - 1
-'''		LogColor("projectionMatrix: " & i & " -- " & projectionMatrix(i), Colors.Magenta)
-'''	Next
 
 	' Enable and bind position buffer
 	gl.glBindBuffer(gl.GL_ARRAY_BUFFER, vbo(0))
@@ -170,11 +139,8 @@ Public Sub Render(gl As GL2, projectionMatrix() As Float, modelMatrix() As Float
 
 	' Draw cube
 	gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, ibo(0))
-	'''gl.glDrawElements2(gl.GL_TRIANGLES, modelData.indexCount, gl.GL_UNSIGNED_INT, 0)
 	indexBuffer.position(0)
 	gl.glDrawElements2(gl.GL_TRIANGLES, modelData.indexCount, gl.GL_UNSIGNED_INT, 0)
-'''	gl.glDrawElements3(gl.GL_TRIANGLES, modelData.indexCount, gl.GL_UNSIGNED_INT, indexBuffer)
-'''	gl.glDrawArrays(gl.GL_TRIANGLES, 0, 36)
 
 	gl.glDisableVertexAttribArray(attrPosition)
 	gl.glDisableVertexAttribArray(attrColor)

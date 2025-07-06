@@ -59,7 +59,6 @@ Public Sub loadGLTFModel As ModelData
 	
 	Dim posCount As Int = posAccessor.Get("count")
 	Log("count: " & posCount)
-	'''	Log("posAccessor: " & posAccessor)
 	Dim posBufferViewIndex As Int = posAccessor.Get("bufferView")
 	Log("posBufferViewIndex: " & posBufferViewIndex)
 	Dim posBufferView As Map = bufferViews.Get(posBufferViewIndex)
@@ -71,11 +70,6 @@ Public Sub loadGLTFModel As ModelData
 	Dim actualLength As Int = posCount * bytestride
 	Log("actualLength: " & actualLength)
 	
-
-'''	Dim posByteLenght As Int = posBufferView.Get("byteLength")
-'''	Log("posByteLenght: " & posByteLenght)
-	
-	
 	Dim vertexBuffer As FloatBuffer
 	vertexBuffer.FloatBuffer = vertexBuffer.allocateDirect(posCount * 3 * 4, vertexBuffer.NATIVE_ORDER)
 
@@ -86,16 +80,10 @@ Public Sub loadGLTFModel As ModelData
 	
 	Log("poscount: " & posCount)
 	For i = 0 To posCount - 1
-	'''	Dim pos As Int = i * posStride
-	'''	rawBuf.Position(pos)
 		rawBuf.Position(posByteOffset + i * bytestride)
 		Dim x As Float = rawBuf.Float
 		Dim y As Float = rawBuf.Float
 		Dim z As Float = rawBuf.Float
-		
-'''		LogColor("x: " & x, Colors.Blue)
-'''		LogColor("y: " & y, Colors.Blue)
-'''		LogColor("z: " & z, Colors.Blue)
 		
 		vertexBuffer.put(x)
 		vertexBuffer.put(y)
@@ -194,11 +182,6 @@ Public Sub loadGLTFModel As ModelData
 	Next
 	LogColor("imageIndex: " & textureID, Colors.Blue)
 
-'''	Dim imageDef As Map = images.Get(textureID)
-'''	Dim imageUri As String = imageDef.Get("uri") ' Should be "Cube_baseColor.png"
-'''	Common.imageURI = imageUri
-'''	Log("Texture image URI: " & imageUri)
-	
 	Dim texCoordAccessorIndex As Int = primitive.Get(0).As(Map).Get("attributes").As(Map).Get("TEXCOORD_0")
 	Common.texCoordAccessorIndex = texCoordAccessorIndex
 	LogColor("common.texCoordAccessorIndex: " & Common.texCoordAccessorIndex, Colors.Magenta)
@@ -220,33 +203,9 @@ Public Sub loadGLTFModel As ModelData
 	
 	If stride = 0 Then stride = 8 ' 2 floats (u, v) = 8 bytes
 	
-'''	Dim texCoordBuf As ByteBuffer
-'''	texCoordBuf.Initialize(binBuffer)
-'''	texCoordBuf.ByteBuffer = texCoordBuf.wrap(binBuffer, texCoordOffset, texCoordCount * 8)
-'''	texCoordBuf.Order(texCoordBuf.LITTLE_ENDIAN)
 	Dim texCoordBuf As ByteBuffer
 	texCoordBuf.Initialize(binBuffer)
 	texCoordBuf.Order(texCoordBuf.LITTLE_ENDIAN)
-'''	
-'''	Dim floatStride As Int = stride / 4
-'''	texCoordBuf.Position(texCoordOffset / 4)
-'''	Dim texCoords As FloatBuffer
-'''	texCoords.FloatBuffer = texCoords.allocateDirect(texCoordCount * 2 * 4, texCoords.NATIVE_ORDER)
-'''
-'''	For i = 0 To texCoordCount - 1
-'''		Dim pos As Int = (texCoordOffset / 4) + i * floatStride
-'''		texCoordBuf.position(pos)
-'''		Dim u As Float = texCoordBuf.Float
-'''		Dim v As Float = texCoordBuf.Float
-''''''		u = Max(0, Min(1, (u + 1) / 2)) ' Clip just in case
-'''		'''		v = Max(0, Min(1, (v + 1) / 2))
-'''		If i = 0 Then
-'''			Log($"First texcoord: u=${u}, v=${v}"$)
-'''		End If
-'''		texCoords.put(u)
-'''		texCoords.put(v)
-'''	Next
-	'''	texCoords.position(0)
 	
 	' Total offset in bytes
 	Dim totalByteOffset As Int = texCoordBufferByteOffset + texCoordByteOffset
@@ -257,35 +216,16 @@ Public Sub loadGLTFModel As ModelData
 	Dim texCoords As FloatBuffer
 	texCoords.FloatBuffer = texCoords.allocateDirect(texCoordCount * 2 * 4, texCoords.NATIVE_ORDER)
 
-'''	For i = 0 To texCoordCount - 1
-'''		Dim pos As Int = offsetInFloats + i * floatStride
-'''		If pos + 1 >= texCoordBuf.capacity Then
-'''			Log($"[Warning] texCoord position ${pos} is out of bounds, skipping"$)
-'''			Exit
-'''		End If
-'''
-'''		texCoordBuf.position(pos)
-'''		Dim u As Float = texCoordBuf.Float
-'''		Dim v As Float = texCoordBuf.Float
-'''
-'''		If i = 0 Then Log($"First texcoord: u=${u}, v=${v}"$)
-'''
-'''		texCoords.put(u)
-'''		texCoords.put(v)
-	'''	Next
-
 	For i = 0 To texCoordCount - 1
 		Dim offset As Int = texCoordOffset + i * stride
 		texCoordBuf.Position(offset)
 		Dim u As Float = texCoordBuf.Float
 		Dim v As Float = texCoordBuf.Float
-'''		u = Max(0, Min(1, (u + 1) / 2)) ' Clip just in case
-'''		v = Max(0, Min(1, (v + 1) / 2))
 		u = Max(0, Min(1, u))
 		v = Max(0, Min(1, v))
-'''		If i = 0 Then
+		If i = 0 Then
 			Log($"First texcoord: u=${u}, v=${v}"$)
-'''		End If
+		End If
 		texCoords.put(u)
 		texCoords.put(v)
 	Next
@@ -301,24 +241,3 @@ Public Sub loadGLTFModel As ModelData
 	
 	Return model
 End Sub
-
-'''Public Sub extractBuffer(accessor As Map, bufferView As Map) As FloatBuffer
-'''	Dim byteOffset As Int = bufferView.Get("byteOffset") + accessor.GetDefault("byteOffset", 0)
-'''	Dim byteLength As Int = accessor.Get("count") * 4 * NumComponents(accessor.Get("type"))
-'''    Dim inpstream As InputStream = File.OpenInput(File.DirAssets, "Cube.bin") 
-'''	Dim byteData() As Byte 
-'''	inpstream.ReadBytes(byteData, byteOffset, byteLength)
-'''	Dim bb As ByteBuffer
-'''	bb.Initialize(byteData)
-'''	Return bb.As(FloatBuffer)
-'''End Sub
-'''
-'''Private Sub NumComponents(accessorType As String) As Int
-'''	Select accessorType
-'''		Case "SCALAR": Return 1
-'''		Case "VEC2": Return 2
-'''		Case "VEC3": Return 3
-'''		Case "VEC4": Return 4
-'''		Case Else: Return 0
-'''	End Select
-'''End Sub
